@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  fe:
+    build:
+      context: ./dashboard-monitoring-fe
+      dockerfile: dockerfile
+    ports:
+      - "3000:3000"
+  be:
+    build: ./dashboard-monitoring-be
+    ports:
+      - "5000:5000"

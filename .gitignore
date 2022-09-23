@@ -1,0 +1,11 @@
+/dashboard-monitoring-be/node_modules
+/dashboard-monitoring-be/Dockerfile
+/dashboard-monitoring-be/Dockerfile.product
+/dashboard-monitoring-be/.dockerignore
+
+/dashboard-monitoring-fe/node_modules
+/dashboard-monitoring-fe/Dockerfile
+/dashboard-monitoring-fe/Dockerfile.product
+/dashboard-monitoring-fe/package-lock.json
+/dashboard-monitoring-fe/README.md
+/dashboard-monitoring-fe/.dockerignore

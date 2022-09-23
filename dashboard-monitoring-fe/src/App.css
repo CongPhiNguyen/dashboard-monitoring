@@ -1,0 +1,38 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+.header-container {
+  height: 4rem;
+}
+
+.page-container {
+  height: calc(100vh - 4rem);
+}
+
+.page-content-container {
+  margin-top: 2rem;
+  padding: 0 2em;
+}
+
+#lbdict_frame_view {
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
