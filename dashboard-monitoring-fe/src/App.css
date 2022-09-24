@@ -9,11 +9,11 @@ html {
 }
 
 .header-container {
-  height: 4rem;
+  height: 6.4rem;
 }
 
 .page-container {
-  height: calc(100vh - 4rem);
+  height: calc(100vh - 6.4rem);
 }
 
 .page-content-container {

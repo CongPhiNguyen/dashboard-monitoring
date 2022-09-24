@@ -65,3 +65,36 @@ code {
 .btn-13:active {
   top: 2px;
 }
+
+.body-animation-login {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
+}
+
+.body-animation-login::before {
+  content: "";
+  display: block;
+  position: fixed;
+  width: 300%;
+  height: 100%;
+  top: 50%;
+  left: 50%;
+  border-radius: 100%;
+  transform: translateX(-50%) skewY(-8deg);
+  background-color: #f6c90e;
+  z-index: -100;
+  -webkit-animation: waveAnimation 10s ease-in-out infinite alternate;
+  animation: waveAnimation 10s ease-in-out infinite alternate;
+}
+
+@keyframes waveAnimation {
+  0% {
+    transform: translateX(-50%) skew(0deg, -8deg);
+  }
+  to {
+    transform: translateX(-30%) skew(8deg, -4deg);
+  }
+}

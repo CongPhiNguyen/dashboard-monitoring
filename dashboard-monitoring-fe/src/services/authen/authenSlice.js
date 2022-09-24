@@ -5,15 +5,17 @@ const initialState = {
 };
 
 export const authenSlice = createSlice({
-  name: "authen",
-  initialState,
+  name: "authenSlice",
+  initialState: {
+    isLogin: false,
+  },
   reducers: {
-    setCurrentUserInfo: (state, action) => {
-      state.currentUserInfo = action.payload;
+    setLoginState: (state, action) => {
+      state.isLogin = action.payload;
     },
   },
 });
 
-export const { setCurrentUserInfo } = authenSlice.actions;
+export const { setLoginState } = authenSlice.actions;
 
 export default authenSlice.reducer;
