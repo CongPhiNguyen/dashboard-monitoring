@@ -10,5 +10,5 @@ export const setAccessToken = (token) => {
 }
 
 export const getAccessToken = () => {
-    return cookies.get("_jwtAlbum")
+    return cookies.get("_jwtService")
 }

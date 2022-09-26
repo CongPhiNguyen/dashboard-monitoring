@@ -9,7 +9,9 @@ const Test = React.lazy(() => import("../services//search/Test.js"));
 const publicRoute = [{ path: "/login", name: "Login", element: <Login /> }];
 
 // Những route dùng khi đã đăng nhập
-const protectedRoute = [{ path: "/", name: "Home", element: <Home /> }];
+const protectedRoute = [
+  { path: "/", name: "Home", element: <Home /> },
+];
 
 // route dùng cho mọi trường hợp
 const commonRoute = [
