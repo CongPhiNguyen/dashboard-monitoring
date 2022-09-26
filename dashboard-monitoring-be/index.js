@@ -6,6 +6,17 @@ const app = express();
 const route = require("./src/routers/index"); // router impl
 const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
+const SocketServer = require('./socketServer')
+
+const http = require("http").Server(app)
+const io = require("socket.io")(http, {
+  cors: { credentials: true, origin: ['http://localhost:3000'] }
+})
+
+io.on('connection', socket => {
+  SocketServer(socket)
+})
+
 
 app.use(cookieParser());
 app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
@@ -17,6 +28,6 @@ connectDB();
 
 route(app);
 
-app.listen(PORT, () => {
+http.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

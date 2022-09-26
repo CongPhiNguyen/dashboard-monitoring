@@ -1,4 +1,3 @@
-const User = require("../models/user");
 const Admin = require("../models/admin");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
