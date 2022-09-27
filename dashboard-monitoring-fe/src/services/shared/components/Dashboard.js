@@ -1,46 +1,36 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react'
+import { Select, Row, Col } from 'antd';
 import ReactApexChart from "react-apexcharts"
-import { getAccessToken } from '../../../helper/Cookies';
 import TableVUI from './TableVUI';
-import socketIOClient from 'socket.io-client';
-import { Col, Row } from 'antd';
 import BalanceVUI from './BalanceVUI';
-
-const host = 'http://localhost:5050'
 function randomIntFromInterval(min, max) { // min and max included 
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
+const { Option } = Select;
+export default function Dashboard() {
+    const [option1, setOption1] = useState("week")
+    const [option2, setOption2] = useState("all")
+    const [dayOfWeek, setDayOfWeek] = useState([])
 
-export default function Chart() {
-    const socketRef = useRef()
     useEffect(() => {
-        socketRef.current = socketIOClient.connect(host)
-
-        socketRef.current.on('connect', function () {
-            console.log(getAccessToken())
-            socketRef.current.emit('authenticate', { token: getAccessToken() });
-        });
-
-        socketRef.current.on('getData', (data) => {
-            console.log(data)
-            let nowTime = new Date()
-            setSeries1(prev => {
-                return [...prev.slice(0), data.plusVui];
-            })
-            setSeries2(prev => {
-                return [...prev.slice(0), data.minusVui];
-            })
-            setCategories(prev => {
-                return [...prev.slice(0), data.date]
-            })
-        })
-
-        return () => {
-            socketRef.current.disconnect()
+        let currentDay = new Date()
+        let days = []
+        days.push(`${currentDay.getDate()}/${currentDay.getMonth() + 1}/${currentDay.getFullYear()}`)
+        for (let i = 1; i <= 6; i++) {
+            let newDay = new Date()
+            newDay.setDate(currentDay.getDate() - i)
+            days.unshift(`${newDay.getDate()}/${newDay.getMonth() + 1}/${newDay.getFullYear()}`)
         }
+        setDayOfWeek(days)
     }, [])
 
-
+    const handleChange = (value) => {
+        setOption1(value)
+    };
+    const handleChange1 = (value) => {
+        setOption2(value)
+    };
+    const arr = new Array(24).fill(0)
     const [series1, setSeries1] = useState([])
     const [series2, setSeries2] = useState([])
     const [categories, setCategories] = useState([])
@@ -53,7 +43,6 @@ export default function Chart() {
             data: series2
         }
     ]
-
     const state = {
         series,
         options: {
@@ -63,13 +52,9 @@ export default function Chart() {
                 height: 700,
                 width: 1400,
                 zoom: {
-                    type: 'x',
-                    enabled: true,
-                    autoScaleYaxis: true
+                    enabled: false
                 },
-                toolbar: {
-                    autoSelected: 'zoom'
-                }
+
             },
             dataLabels: {
                 enabled: false
@@ -128,11 +113,11 @@ export default function Chart() {
                 },
             },
             xaxis: {
-                type: 'datetime',
                 categories,
             },
             tooltip: {
                 enabled: true,
+                shared: true,
                 y: {
                     formatter: function (val) {
                         return val
@@ -141,8 +126,14 @@ export default function Chart() {
                 x: {
                     format: 'dd/MM/yy HH:mm',
                     formatter: function (value) {
-                        const date = new Date(value)
-                        return date.getDate() + "/" + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds()
+                        console.log(value);
+                        if (option1 === "week") {
+                            return categories[value - 1]
+                        } else if (option1 !== "weel" && option2 === "all") {
+                            return `${option1} ${value}:00`
+                        } else {
+                            return `${option1} ${option2}:${value}`
+                        }
                     }
                 },
             },
@@ -224,19 +215,103 @@ export default function Chart() {
         },
     };
 
+    const renderWeek = () => {
+        setSeries1([23, 34, 52, 13, 52, 22, 90])
+        setSeries2([34, 213, 23, 124, 232, 12, 42])
+        let currentDay = new Date()
+        let arrCategories = []
+        arrCategories.push(`${currentDay.getDate()}/${currentDay.getMonth() + 1}/${currentDay.getFullYear()}`)
+        for (let i = 1; i <= 6; i++) {
+            let newDay = new Date()
+            newDay.setDate(currentDay.getDate() - i)
+            arrCategories.unshift(`${newDay.getDate()}/${newDay.getMonth() + 1}/${newDay.getFullYear()}`)
+        }
+        setCategories(arrCategories)
+    }
 
-    return <>
+    const renderDay = () => {
+        let arr = new Array(24).fill(0)
+        setSeries1([23, 34, 52, 13, 52, 22, 90, 23, 34, 52, 13, 52, 22, 90, 23, 34, 52, 13, 52, 22, 90, 23, 12, 52])
+        setSeries2([34, 213, 23, 124, 232, 12, 42, 34, 213, 23, 124, 232, 12, 42, 34, 213, 23, 124, 232, 12, 42, 42, 34])
+        let cate = arr.map((value, key) => {
+            return key
+        })
+        setCategories(cate)
+    }
 
-        <div style={{ display: "flex", justifyContent: "center" }}>
-            <ReactApexChart options={state.options} series={state.series} height={500} width={1200} type="area" />
-        </div>
-        <Row className='mt-3' gutter={[16, 16]}>
-            <Col xl={12} md={24}>
-                <TableVUI plusVui={series1} minusVui={series2} categories={categories}></TableVUI>
-            </Col>
-            <Col xl={12} md={24}>
-                <BalanceVUI plusVui={series1} minusVui={series2} ></BalanceVUI>
-            </Col>
-        </Row>
-    </>
+    const renderHours = () => {
+        let arr = new Array(60).fill(0)
+        let valueSeries1 = arr.map(value => {
+            return randomIntFromInterval(0, 100)
+        })
+        let valueSeries2 = arr.map(value => {
+            return randomIntFromInterval(0, 100)
+        })
+        setSeries1(valueSeries1)
+        setSeries2(valueSeries2)
+
+        let cate = arr.map((value, key) => {
+            return key
+        })
+        setCategories(cate)
+    }
+
+    useEffect(() => {
+        if (option1 === "week") {
+            renderWeek()
+        } else if (option1 !== "weel" && option2 === "all") {
+            renderDay()
+        } else {
+            renderHours()
+        }
+    }, [option1, option2])
+
+
+    return (
+        <>
+            <div className='flex justify-start'>
+                <Select
+                    value={option1}
+                    style={{
+                        width: 120,
+                        marginRight: '12px'
+                    }}
+                    onChange={handleChange}
+                >
+                    <Option value="week">Week</Option>
+                    {
+                        dayOfWeek.map((value, index) => {
+                            return (<Option key={index} value={value}>{value}</Option>)
+                        })
+                    }
+                </Select>
+                <Select
+                    value={option2}
+                    style={{
+                        width: 120,
+                    }}
+                    disabled={option1 === "week" ? true : false}
+                    onChange={handleChange1}
+                >
+                    <Option value="all">All</Option>
+                    {
+                        arr.map((value, key) => (
+                            <Option value={key}>{key}</Option>
+                        ))
+                    }
+                </Select>
+            </div>
+            <div style={{ display: "flex", justifyContent: "center" }}>
+                <ReactApexChart options={state.options} series={state.series} height={500} width={1200} type="area" />
+            </div>
+            <Row className='mt-3' gutter={[16, 16]}>
+                <Col xl={12} md={24}>
+                    <TableVUI plusVui={series1} minusVui={series2} categories={categories}></TableVUI>
+                </Col>
+                <Col xl={12} md={24}>
+                    <BalanceVUI plusVui={series1} minusVui={series2} ></BalanceVUI>
+                </Col>
+            </Row>
+        </>
+    )
 }
