@@ -183,17 +183,110 @@ class vuiCoinsController {
     //     console.log("err", err);
     //     res.status(200).send({ success: false });
     //   });
-    db.user_point
-      .find()
-      .then((data) => {
-        // console.log("data", JSON.stringify(data));
-        res.status(200).send({ success: true, data: data });
-      })
-      .catch((err) => {
-        console.log("err", err);
-        res.status(204).send({ success: false });
-      });
+    // db.collection("user_point").find(){}, (err, data) => {
+    //   if (err) {
+    //     console.log("err", err);
+    //     res.status(204).send({ success: false });
+    //   }
+    //   res.status(200).send({ success: true, data: data });
+    // });
     // };
+    // const val = await db.collection("user_point").find().toArray();
+    const replaceBlank = (val, size) => {
+      let value = val.toString();
+      while (value.length < size) {
+        value = "0" + value;
+      }
+      return value;
+    };
+    let result = await db
+      .collection("user_points")
+      // .find()
+      .aggregate([
+        {
+          $project: {
+            date: {
+              $dateToParts: { date: "$createdAt" },
+            },
+            value: 1,
+            event: "$data.event",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              timeTempt: {
+                year: "$date.year",
+                month: "$date.month",
+                day: "$date.day",
+                hour: "$date.hour",
+                minute: "$date.second",
+              },
+              event: "$event",
+            },
+            sum: { $sum: "$value" },
+          },
+        },
+        {
+          $sort: { _id: 1 },
+        },
+        {
+          $project: {
+            _id: 0,
+            time: {
+              $dateFromParts: {
+                year: "$_id.timeTempt.year",
+                month: "$_id.timeTempt.month",
+                day: "$_id.timeTempt.day",
+                hour: "$_id.timeTempt.hour",
+                minute: "$_id.timeTempt.minute",
+              },
+            },
+            value: "$sum",
+            event: "$_id.event",
+          },
+        },
+        {
+          $group: {
+            _id: {
+              time: "$time",
+            },
+            value: {
+              $push: {
+                event: "$event",
+                points: "$value",
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0,
+            time: "$_id.time",
+            value: "$value",
+          },
+        },
+      ])
+      .toArray();
+    // result = result.map((val) => {
+    //   // console.log("val", val);
+    //   return {
+    //     time: new Date(
+    //       `${val._id.time.year}-${replaceBlank(
+    //         val._id.time.month,
+    //         2
+    //       )}-${replaceBlank(val._id.time.day, 2)}T${replaceBlank(
+    //         val._id.time.hour,
+    //         2
+    //       )}:${replaceBlank(val._id.time.minute, 2)}:00.001+00:00`
+    //     ),
+    //     value: val.sum,
+    //     event: val._id.event,
+    //   };
+    // });
+
+    // console.log("result", result);
+    res.status(200).send({ success: true, data: result });
   };
 }
 

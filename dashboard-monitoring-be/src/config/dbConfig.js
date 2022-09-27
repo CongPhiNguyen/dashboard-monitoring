@@ -9,7 +9,7 @@ const URI2 =
   "mongodb+srv://stream_user:BGCJMDHgkYrqC3Q8@taptap-datastream.jzu6a.mongodb.net/data_timeseries_test";
 module.exports = connectDB = async () => {
   try {
-    await mongoose.connect(URI2, {
+    await mongoose.connect(URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
