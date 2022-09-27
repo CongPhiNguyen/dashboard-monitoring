@@ -3,21 +3,17 @@ const Schema = mongoose.Schema;
 
 const vuiCoinsSchema = new Schema(
   {
-    name: String,
+    vuiIncrease: Number,
+    vuiDecrease: Number,
     timestamp: Date,
-    metadata: Object,
-    hours: [
-      {
-        vuiGiving: Number,
-        vuiSpending: Number,
-      },
-    ],
+    metadata: {},
+    minutes: {},
   },
   {
     timeseries: {
       timeField: "timestamp",
       metaField: "metadata",
-      granularity: "hours",
+      granularity: "minutes",
     },
     expireAfterSeconds: 24 * 7 * 60 * 60,
   }

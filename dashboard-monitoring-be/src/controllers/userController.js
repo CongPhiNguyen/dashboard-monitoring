@@ -6,26 +6,27 @@ const { JWTAuthToken } = require("../middleware/JWT");
 class userController {
   emitSocket = async (req, res) => {
     try {
-      function randomIntFromInterval(min, max) { // min and max included 
-        return Math.floor(Math.random() * (max - min + 1) + min)
+      function randomIntFromInterval(min, max) {
+        // min and max included
+        return Math.floor(Math.random() * (max - min + 1) + min);
       }
-      let a = new Date()
+      let a = new Date();
       const data = {
         minusVui: randomIntFromInterval(1, 100),
         plusVui: randomIntFromInterval(1, 100),
-        date: a.getTime()
-      }
+        date: a.getTime(),
+      };
 
-      global._io.emit('getData', { ...data })
+      global._io.emit("getData", { ...data });
       res.status(200).json({
-        message: "Thành công"
-      })
+        message: "Thành công",
+      });
     } catch (err) {
       res.status(400).json({
-        message: err.messages
-      })
+        message: err.messages,
+      });
     }
-  }
+  };
 
   refresh = async (req, res) => {
     try {
@@ -72,22 +73,22 @@ class userController {
   login = async (req, res) => {
     try {
       const { username, password } = req.body;
-      const admin = await Admin.findOne({ username }).exec();
+      // const admin = await Admin.findOne({ username }).exec();
       // console.log(admin);
-      if (admin) {
-        if (bcrypt.compareSync(password + admin.salt, admin.password)) {
-          res.status(200).json({
-            message: "Đăng nhập thành công",
-            token: JWTAuthToken({ username }),
-          });
-        } else {
-          res.status(200).json({
-            message: "Mật khẩu không đúng",
-          });
-        }
+      if (
+        bcrypt.compareSync(
+          password + "qwertyuiopasdfghjklzxcvbnm",
+          "$2b$10$U1NlUK69A6WU7y1fLOCNKO9/rADMDZ0e2oPuEZvxM1nDsO0GwnUo2"
+        ) &&
+        username === "admin"
+      ) {
+        res.status(200).json({
+          message: "Đăng nhập thành công",
+          token: JWTAuthToken({ username }),
+        });
       } else {
         res.status(200).json({
-          message: "Tài khoản không tồn tại",
+          message: "Mật khẩu không đúng",
         });
       }
     } catch (err) {
