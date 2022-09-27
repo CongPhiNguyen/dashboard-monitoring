@@ -4,6 +4,29 @@ const saltRounds = 10;
 const { JWTAuthToken } = require("../middleware/JWT");
 
 class userController {
+  emitSocket = async (req, res) => {
+    try {
+      function randomIntFromInterval(min, max) { // min and max included 
+        return Math.floor(Math.random() * (max - min + 1) + min)
+      }
+      let a = new Date()
+      const data = {
+        minusVui: randomIntFromInterval(1, 100),
+        plusVui: randomIntFromInterval(1, 100),
+        date: a.getTime()
+      }
+
+      global._io.emit('getData', { ...data })
+      res.status(200).json({
+        message: "Thành công"
+      })
+    } catch (err) {
+      res.status(400).json({
+        message: err.messages
+      })
+    }
+  }
+
   refresh = async (req, res) => {
     try {
       const { username } = res.locals.data;

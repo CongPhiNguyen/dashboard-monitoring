@@ -36,8 +36,6 @@ const respone_401 = (res, err) => {
 async function AuthMiddleware(req, res, next) {
   try {
     const token = req.cookies._jwtService;
-    // console.log("req.cookies", req.cookies);
-    // console.log("token", token);
     if (!token) {
       res.status(401).send(JSON.stringify({ status: 401 }));
     } else {

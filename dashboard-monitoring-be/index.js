@@ -13,6 +13,8 @@ const io = require("socket.io")(http, {
   cors: { credentials: true, origin: ['http://localhost:3000'] }
 })
 
+global._io = io
+
 io.on('connection', socket => {
   SocketServer(socket)
 })
