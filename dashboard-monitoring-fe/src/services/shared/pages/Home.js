@@ -3,14 +3,17 @@ import {
   MenuUnfoldOutlined,
   DashboardFilled,
 } from "@ant-design/icons";
+import { AiOutlineFieldTime } from "react-icons/ai"
 import { Layout, Menu } from "antd";
 import React, { useState } from "react";
 import "./Home.css";
 import Chart from "../components/Chart";
+import Dashboard from "../components/Dashboard";
 const { Header, Sider, Content } = Layout;
 
 const App = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [key, setKey] = useState("1")
   return (
     <Layout>
       <Sider
@@ -22,12 +25,18 @@ const App = () => {
         <Menu
           theme="light"
           mode="inline"
-          defaultSelectedKeys={["1"]}
+          onClick={(e) => { setKey(e.key) }}
+          defaultSelectedKeys={[key]}
           items={[
             {
               key: "1",
               icon: <DashboardFilled />,
               label: "Dashboard",
+            },
+            {
+              key: "2",
+              icon: <AiOutlineFieldTime />,
+              label: "Realtime",
             },
           ]}
         />
@@ -55,7 +64,9 @@ const App = () => {
             minHeight: 280,
           }}
         >
-          <Chart />
+          {
+            key === "1" ? <Dashboard /> : <Chart />
+          }
         </Content>
       </Layout>
     </Layout>
