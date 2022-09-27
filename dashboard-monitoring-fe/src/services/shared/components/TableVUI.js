@@ -11,7 +11,7 @@ const columns = [
         dataIndex: 'plusVui',
         sorter: {
             compare: (a, b) => a.plusVui - b.plusVui,
-            multiple: 2,
+            // multiple: 2,
         },
         render: (text) => <div className='flex justify-start items-center'>
             <p className='text-[#a0d911] font-bold m-0'>{text}</p>
@@ -23,7 +23,7 @@ const columns = [
         dataIndex: 'minusVui',
         sorter: {
             compare: (a, b) => a.minusVui - b.minusVui,
-            multiple: 1,
+            // multiple: 1,
         },
         render: (text) => <div className='flex justify-start items-center'>
             <p className='text-[#ff4d4f]  font-bold m-0'>{text}</p>
