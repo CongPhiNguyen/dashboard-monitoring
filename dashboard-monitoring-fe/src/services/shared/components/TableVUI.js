@@ -7,10 +7,10 @@ const columns = [
         dataIndex: 'date',
     },
     {
-        title: 'Plus VUI',
-        dataIndex: 'plusVui',
+        title: 'Using VUI',
+        dataIndex: 'using',
         sorter: {
-            compare: (a, b) => a.plusVui - b.plusVui,
+            compare: (a, b) => a.using - b.using,
             // multiple: 2,
         },
         render: (text) => <div className='flex justify-start items-center'>
@@ -19,10 +19,10 @@ const columns = [
         </div>,
     },
     {
-        title: 'Minus VUI',
-        dataIndex: 'minusVui',
+        title: 'Giving VUI',
+        dataIndex: 'giving',
         sorter: {
-            compare: (a, b) => a.minusVui - b.minusVui,
+            compare: (a, b) => a.giving - b.giving,
             // multiple: 1,
         },
         render: (text) => <div className='flex justify-start items-center'>
@@ -32,32 +32,6 @@ const columns = [
     },
 ];
 
-// const data = [
-//     {
-//         key: 1,
-//         date: "12 / 2 / 2022",
-//         plusVui: 50,
-//         minusVui: 60,
-//     },
-//     {
-//         key: 2,
-//         date: "13 / 2 / 2022",
-//         plusVui: 150,
-//         minusVui: 90,
-//     },
-//     {
-//         key: 3,
-//         date: "14 / 2 / 2022",
-//         plusVui: 80,
-//         minusVui: 60,
-//     },
-//     {
-//         key: 4,
-//         date: "12 / 2 / 2022",
-//         plusVui: 20,
-//         minusVui: 40,
-//     },
-// ]
 
 const onChange = (pagination, filters, sorter, extra) => {
     console.log('params', pagination, filters, sorter, extra);
@@ -72,17 +46,27 @@ const TableVUI = (props) => {
 
     const [data, setData] = useState([])
     useEffect(() => {
+        if (data.length !== 0) {
+            setData(props.categories.map((value, key) => {
+                return {
+                    key: key,
+                    date: renderDate(props.categories[key]),
+                    using: props.using[key],
+                    giving: props.giving[key],
+                }
+            }))
+        }
         if (props.categories.length !== 0) {
             setData(prev => {
                 return [{
                     key: props.categories.length,
                     date: renderDate(props.categories[props.categories.length - 1]),
-                    plusVui: props.plusVui[props.plusVui.length - 1],
-                    minusVui: props.minusVui[props.minusVui.length - 1],
+                    using: props.using[props.using.length - 1],
+                    giving: props.giving[props.giving.length - 1],
                 }, ...prev]
             })
         }
-    }, [props.categories])
+    }, [props.categories, props.using, props.giving])
     return (
         <Table columns={columns} dataSource={data} onChange={onChange} />
     )

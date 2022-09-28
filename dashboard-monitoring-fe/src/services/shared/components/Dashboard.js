@@ -306,10 +306,10 @@ export default function Dashboard() {
             </div>
             <Row className='mt-3' gutter={[16, 16]}>
                 <Col xl={12} md={24}>
-                    <TableVUI plusVui={series1} minusVui={series2} categories={categories}></TableVUI>
+                    <TableVUI using={series1} giving={series2} categories={categories}></TableVUI>
                 </Col>
                 <Col xl={12} md={24}>
-                    <BalanceVUI plusVui={series1} minusVui={series2} ></BalanceVUI>
+                    <BalanceVUI using={series1} giving={series2} ></BalanceVUI>
                 </Col>
             </Row>
         </>

@@ -5,39 +5,49 @@ import TableVUI from './TableVUI';
 import socketIOClient from 'socket.io-client';
 import { Col, Row } from 'antd';
 import BalanceVUI from './BalanceVUI';
-
+import URL from "../../../api/config"
+import { get } from "../../../api/axios"
 const host = 'http://localhost:5050'
-function randomIntFromInterval(min, max) { // min and max included 
-    return Math.floor(Math.random() * (max - min + 1) + min)
-}
 
 export default function Chart() {
     const socketRef = useRef()
     useEffect(() => {
+        // Connect socket
         socketRef.current = socketIOClient.connect(host)
-
         socketRef.current.on('connect', function () {
-            console.log(getAccessToken())
             socketRef.current.emit('authenticate', { token: getAccessToken() });
         });
-
         socketRef.current.on('getData', (data) => {
-            console.log(data)
-            let nowTime = new Date()
             setSeries1(prev => {
-                return [...prev.slice(0), data.plusVui];
+                return [...prev.slice(0), data.using];
             })
             setSeries2(prev => {
-                return [...prev.slice(0), data.minusVui];
+                return [...prev.slice(0), data.giving];
             })
             setCategories(prev => {
                 return [...prev.slice(0), data.date]
             })
         })
 
+        // 
         return () => {
             socketRef.current.disconnect()
         }
+    }, [])
+
+    useEffect(() => {
+        const getAllData = () => {
+            get(URL.URL_GET_ALL_DATA)
+                .then(res => {
+                    setCategories(res.data.arrCate)
+                    setSeries2(res.data.Giving)
+                    setSeries1(res.data.Using)
+                })
+                .catch(err => {
+                    alert(err.message)
+                })
+        }
+        getAllData()
     }, [])
 
 
@@ -46,10 +56,10 @@ export default function Chart() {
     const [categories, setCategories] = useState([])
     const series = [
         {
-            name: 'Plus VUI',
+            name: 'Using VUI',
             data: series1,
         }, {
-            name: 'Minus VUI',
+            name: 'Giving VUI',
             data: series2
         }
     ]
@@ -232,10 +242,10 @@ export default function Chart() {
         </div>
         <Row className='mt-3' gutter={[16, 16]}>
             <Col xl={12} md={24}>
-                <TableVUI plusVui={series1} minusVui={series2} categories={categories}></TableVUI>
+                <TableVUI using={series1} giving={series2} categories={categories}></TableVUI>
             </Col>
             <Col xl={12} md={24}>
-                <BalanceVUI plusVui={series1} minusVui={series2} ></BalanceVUI>
+                <BalanceVUI using={series1} giving={series2} ></BalanceVUI>
             </Col>
         </Row>
     </>

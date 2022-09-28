@@ -4,8 +4,8 @@ import ReactApexChart from 'react-apexcharts'
 export default function BalanceVUI(props) {
     const [series, setSeries] = useState([0, 0])
     useEffect(() => {
-        setSeries([props.plusVui.reduce((total, value) => total + value, 0), props.minusVui.reduce((total, value) => total + value, 0)])
-    }, [props.plusVui, props.minusVui])
+        setSeries([props.using.reduce((total, value) => total + value, 0), props.giving.reduce((total, value) => total + value, 0)])
+    }, [props.using, props.giving])
 
     const state = {
         series,
@@ -20,7 +20,7 @@ export default function BalanceVUI(props) {
                     endAngle: 270
                 }
             },
-            labels: ["Plus VUI", "Minus VUI"],
+            labels: ["Using VUI", "Giving VUI"],
             dataLabels: {
                 enabled: true
             },
@@ -29,11 +29,10 @@ export default function BalanceVUI(props) {
             },
             legend: {
                 formatter: function (val, opts) {
-                    console.log(val, opts)
                     if (opts.seriesIndex === 0) {
-                        return "Plus VUI" + " - " + opts.w.globals.series[opts.seriesIndex]
+                        return "Using VUI" + " - " + opts.w.globals.series[opts.seriesIndex]
                     } else {
-                        return "Minus VUI" + " - " + opts.w.globals.series[opts.seriesIndex]
+                        return "Giving VUI" + " - " + opts.w.globals.series[opts.seriesIndex]
                     }
 
                 }
