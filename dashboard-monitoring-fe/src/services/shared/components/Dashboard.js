@@ -3,6 +3,9 @@ import { Select, Row, Col } from 'antd';
 import ReactApexChart from "react-apexcharts"
 import TableVUI from './TableVUI';
 import BalanceVUI from './BalanceVUI';
+import { get } from "../../../api/axios"
+import URL from "../../../api/config"
+
 function randomIntFromInterval(min, max) { // min and max included 
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
@@ -36,10 +39,10 @@ export default function Dashboard() {
     const [categories, setCategories] = useState([])
     const series = [
         {
-            name: 'Plus VUI',
+            name: 'Using VUI',
             data: series1,
         }, {
-            name: 'Minus VUI',
+            name: 'Giving VUI',
             data: series2
         }
     ]
@@ -126,11 +129,10 @@ export default function Dashboard() {
                 x: {
                     format: 'dd/MM/yy HH:mm',
                     formatter: function (value) {
-                        console.log(value);
                         if (option1 === "week") {
                             return categories[value - 1]
                         } else if (option1 !== "weel" && option2 === "all") {
-                            return `${option1} ${value}:00`
+                            return `${option1} ${value - 1}:00`
                         } else {
                             return `${option1} ${option2}:${value}`
                         }
@@ -215,9 +217,10 @@ export default function Dashboard() {
         },
     };
 
-    const renderWeek = () => {
-        setSeries1([23, 34, 52, 13, 52, 22, 90])
-        setSeries2([34, 213, 23, 124, 232, 12, 42])
+    const renderWeek = async () => {
+        const response = await get(URL.URL_GET_DATA_WEEK)
+        setSeries1(response.data.vuiSpending)
+        setSeries2(response.data.vuiGiving)
         let currentDay = new Date()
         let arrCategories = []
         arrCategories.push(`${currentDay.getDate()}/${currentDay.getMonth() + 1}/${currentDay.getFullYear()}`)
@@ -229,27 +232,24 @@ export default function Dashboard() {
         setCategories(arrCategories)
     }
 
-    const renderDay = () => {
+    const renderDay = async () => {
+        console.log(option1)
+        const response = await get(URL.URL_GET_DATA_DAY + `?day=${option1}`)
+        console.log(response.data)
         let arr = new Array(24).fill(0)
-        setSeries1([23, 34, 52, 13, 52, 22, 90, 23, 34, 52, 13, 52, 22, 90, 23, 34, 52, 13, 52, 22, 90, 23, 12, 52])
-        setSeries2([34, 213, 23, 124, 232, 12, 42, 34, 213, 23, 124, 232, 12, 42, 34, 213, 23, 124, 232, 12, 42, 42, 34])
+        setSeries1(response.data.vuiSpending)
+        setSeries2(response.data.vuiGiving)
         let cate = arr.map((value, key) => {
             return key
         })
         setCategories(cate)
     }
 
-    const renderHours = () => {
+    const renderHours = async () => {
+        const response = await get(URL.URL_GET_DATA_HOURS + `?day=${option1}&hour=${option2}`)
         let arr = new Array(60).fill(0)
-        let valueSeries1 = arr.map(value => {
-            return randomIntFromInterval(0, 100)
-        })
-        let valueSeries2 = arr.map(value => {
-            return randomIntFromInterval(0, 100)
-        })
-        setSeries1(valueSeries1)
-        setSeries2(valueSeries2)
-
+        setSeries1(response.data.vuiSpending)
+        setSeries2(response.data.vuiGiving)
         let cate = arr.map((value, key) => {
             return key
         })
@@ -259,7 +259,7 @@ export default function Dashboard() {
     useEffect(() => {
         if (option1 === "week") {
             renderWeek()
-        } else if (option1 !== "weel" && option2 === "all") {
+        } else if (option1 !== "week" && option2 === "all") {
             renderDay()
         } else {
             renderHours()
@@ -306,7 +306,7 @@ export default function Dashboard() {
             </div>
             <Row className='mt-3' gutter={[16, 16]}>
                 <Col xl={12} md={24}>
-                    <TableVUI using={series1} giving={series2} categories={categories}></TableVUI>
+                    <TableVUI using={series1} typeCate={"week"} giving={series2} categories={categories}></TableVUI>
                 </Col>
                 <Col xl={12} md={24}>
                     <BalanceVUI using={series1} giving={series2} ></BalanceVUI>

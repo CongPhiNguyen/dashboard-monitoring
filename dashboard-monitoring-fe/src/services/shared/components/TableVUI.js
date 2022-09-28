@@ -11,7 +11,6 @@ const columns = [
         dataIndex: 'using',
         sorter: {
             compare: (a, b) => a.using - b.using,
-            // multiple: 2,
         },
         render: (text) => <div className='flex justify-start items-center'>
             <p className='text-[#a0d911] font-bold m-0'>{text}</p>
@@ -23,7 +22,6 @@ const columns = [
         dataIndex: 'giving',
         sorter: {
             compare: (a, b) => a.giving - b.giving,
-            // multiple: 1,
         },
         render: (text) => <div className='flex justify-start items-center'>
             <p className='text-[#ff4d4f]  font-bold m-0'>{text}</p>
@@ -38,8 +36,10 @@ const onChange = (pagination, filters, sorter, extra) => {
 };
 
 const TableVUI = (props) => {
-
     const renderDate = (date) => {
+        // if (props.type === "week") {
+        // let [day, month, year] = date.split("/")
+        console.log(date.split("/"))
         let a = new Date(date)
         return a.getDate() + "/" + (a.getMonth() + 1) + "/" + a.getFullYear() + " " + a.getHours() + ":" + a.getMinutes() + ":" + a.getSeconds()
     }
@@ -66,7 +66,7 @@ const TableVUI = (props) => {
                 }, ...prev]
             })
         }
-    }, [props.categories, props.using, props.giving])
+    }, [props.categories, props.using, props.giving, data.length])
     return (
         <Table columns={columns} dataSource={data} onChange={onChange} />
     )

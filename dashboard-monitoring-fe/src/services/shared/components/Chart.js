@@ -18,6 +18,7 @@ export default function Chart() {
             socketRef.current.emit('authenticate', { token: getAccessToken() });
         });
         socketRef.current.on('getData', (data) => {
+            console.log("S")
             setSeries1(prev => {
                 return [...prev.slice(0), data.using];
             })
@@ -236,7 +237,6 @@ export default function Chart() {
 
 
     return <>
-
         <div style={{ display: "flex", justifyContent: "center" }}>
             <ReactApexChart options={state.options} series={state.series} height={500} width={1200} type="area" />
         </div>
