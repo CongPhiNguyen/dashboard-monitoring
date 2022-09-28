@@ -192,15 +192,8 @@ class vuiCoinsController {
     // });
     // };
     // const val = await db.collection("user_point").find().toArray();
-    const replaceBlank = (val, size) => {
-      let value = val.toString();
-      while (value.length < size) {
-        value = "0" + value;
-      }
-      return value;
-    };
     let result = await db
-      .collection("user_points")
+      .collection("user_point")
       // .find()
       .aggregate([
         {
@@ -287,6 +280,22 @@ class vuiCoinsController {
 
     // console.log("result", result);
     res.status(200).send({ success: true, data: result });
+  };
+
+  queryStoreCode = async (req, res) => {
+    let result = await db
+      .collection("user_point")
+      .aggregate([{ $group: { _id: "$data" } }])
+      .toArray();
+    res.status(200).send({ success: true, data: result });
+  };
+
+  queryFurtherData = async (req, res) => {
+    console.log(req.query);
+    let result = await db
+      .collection("user_point")
+      .aggregate([{ $group: { _id: "$data" } }]);
+    res.status(200).send({ success: true });
   };
 }
 

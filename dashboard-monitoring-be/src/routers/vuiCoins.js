@@ -8,4 +8,6 @@ router.post("/", vuiCoinsController.addData);
 router.post("/add-fix", vuiCoinsController.addDataFix);
 router.get("/time-series", vuiCoinsController.query);
 router.get("/time-series-2", vuiCoinsController.queryTest);
+router.get("/get-store-code", vuiCoinsController.queryStoreCode);
+router.get("/get-further-data", vuiCoinsController.queryFurtherData);
 module.exports = router;
