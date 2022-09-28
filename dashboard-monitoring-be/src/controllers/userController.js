@@ -10,15 +10,15 @@ class userController {
         // min and max included
         return Math.floor(Math.random() * (max - min + 1) + min);
       }
+
       let a = new Date();
-      console.log(a.getTime())
       const data = {
         using: randomIntFromInterval(500, 1000),
         giving: randomIntFromInterval(501, 1000),
-        date: a.getTime(),
+        date: a.getTime() + i * 1000,
       };
-
       global._io.emit("getData", { ...data });
+
       res.status(200).json({
         message: "Thành công",
       });

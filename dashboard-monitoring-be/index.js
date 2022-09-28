@@ -8,6 +8,7 @@ const bodyParser = require("body-parser");
 var cookieParser = require("cookie-parser");
 const SocketServer = require('./socketServer')
 
+
 const http = require("http").Server(app)
 const io = require("socket.io")(http, {
   cors: { credentials: true, origin: ['http://localhost:3000'] }
@@ -27,6 +28,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 connectDB();
+
+
+
 
 route(app);
 

@@ -14,6 +14,7 @@ module.exports = connectDB = async () => {
       useUnifiedTopology: true,
     });
     console.log("Connecting to DB successfully!");
+
   } catch (error) {
     console.error(error);
   }
