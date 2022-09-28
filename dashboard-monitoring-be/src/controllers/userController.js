@@ -47,30 +47,6 @@ class userController {
     }
   };
 
-  resgister = async (req, res) => {
-    try {
-      const username = "admin";
-      const password = "123456789";
-      const salt = `qwertyuiopasdfghjklzxcvbnm`;
-      Admin.create({
-        username,
-        password: bcrypt.hashSync(password + salt, saltRounds),
-        salt,
-      }).then((result) => {
-        res.status(200).send(
-          JSON.stringify({
-            message: "Đăng ký thành công",
-            status: 1,
-          })
-        );
-      });
-    } catch (err) {
-      res.status(400).json({
-        err: err.message,
-      });
-    }
-  };
-
   login = async (req, res) => {
     try {
       const { username, password } = req.body;
