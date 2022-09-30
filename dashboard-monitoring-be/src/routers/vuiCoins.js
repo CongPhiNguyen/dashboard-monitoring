@@ -9,5 +9,6 @@ router.get("/get-data-by-hour", vuiCoinsController.getDataByHour);
 router.get("/get-data-by-minute", vuiCoinsController.getDataByMinute);
 router.get("/get-concrete-value", vuiCoinsController.getConcreteValue);
 router.get("/get-concrete-data", vuiCoinsController.getConcreteData);
+router.get("/get-transaction", vuiCoinsController.getTransactionDataInMinute);
 
 module.exports = router;

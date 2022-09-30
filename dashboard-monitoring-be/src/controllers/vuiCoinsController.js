@@ -1150,8 +1150,7 @@ class vuiCoinsController {
                 $dateToParts: { date: "$createdAt" },
               },
               value: 1,
-              event: "$data.event",
-              dataType: `$data.${dataType}`,
+              data: `$data`,
             },
           },
           {
@@ -1169,22 +1168,9 @@ class vuiCoinsController {
             },
           },
           {
-            $group: {
-              _id: {
-                $dateFromParts: {
-                  year: "$date.year",
-                  month: "$date.month",
-                  day: "$date.day",
-                  hour: "$date.hour",
-                  minute: "$date.minute",
-                },
-              },
-              value: {
-                $push: {
-                  event: "$event",
-                  value: "$value",
-                },
-              },
+            $project: {
+              value: 1,
+              data: 1,
             },
           },
           { $sort: { _id: 1 } },
@@ -1233,6 +1219,88 @@ class vuiCoinsController {
       getHourData();
     } else if (options === "minute") {
       getMinutesData();
+    }
+  };
+
+  getTransactionDataInMinute = async (req, res) => {
+    try {
+      let { hour, minute, options } = req.query;
+      let [day, month, year] = req.query.day.split("/");
+      day = parseInt(day);
+      month = parseInt(month);
+      year = parseInt(year);
+      hour = parseInt(hour);
+      minute = parseInt(minute);
+
+      const createMatchObject = (options) => {
+        if (options === "minute") {
+          // console.log("run");
+          return {
+            $match: {
+              "date.year": year,
+              "date.month": month,
+              "date.day": day,
+              "date.hour": hour,
+              "date.minute": minute,
+            },
+          };
+        } else if (options === "hour") {
+          return {
+            $match: {
+              "date.year": year,
+              "date.month": month,
+              "date.day": day,
+              "date.hour": hour,
+            },
+          };
+        } else if (options === "day") {
+          return {
+            $match: {
+              "date.year": year,
+              "date.month": month,
+              "date.day": day,
+            },
+          };
+        } else if (options === "all") {
+          return {};
+        }
+      };
+      let result = await db
+        .collection("user_point")
+        .aggregate([
+          {
+            $project: {
+              date: { $add: ["$createdAt", 7 * 60 * 60 * 1000] },
+              value: 1,
+              event: "$data.event",
+              data: `$data`,
+            },
+          },
+          {
+            $project: {
+              date: {
+                $dateToParts: { date: "$date" },
+              },
+              value: 1,
+              event: "$data.event",
+              data: `$data`,
+            },
+          },
+          createMatchObject(options),
+          {
+            $project: {
+              date: "$date",
+              value: 1,
+              event: "$data.event",
+              data: `$data`,
+            },
+          },
+        ])
+        .toArray();
+      res.status(200).send({ success: true, result: result });
+    } catch (err) {
+      console.log("err", err);
+      res.status(204).send({ success: false });
     }
   };
 }
