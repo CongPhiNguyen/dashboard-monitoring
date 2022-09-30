@@ -1151,6 +1151,7 @@ class vuiCoinsController {
               },
               value: 1,
               data: `$data`,
+              dataType: `$data.${dataType}`,
             },
           },
           {
@@ -1274,6 +1275,95 @@ class vuiCoinsController {
               value: 1,
               event: "$data.event",
               data: `$data`,
+            },
+          },
+          {
+            $project: {
+              date: {
+                $dateToParts: { date: "$date" },
+              },
+              value: 1,
+              event: "$data.event",
+              data: `$data`,
+            },
+          },
+          createMatchObject(options),
+          {
+            $project: {
+              date: "$date",
+              value: 1,
+              event: "$data.event",
+              data: `$data`,
+            },
+          },
+        ])
+        .toArray();
+      res.status(200).send({ success: true, result: result });
+    } catch (err) {
+      console.log("err", err);
+      res.status(204).send({ success: false });
+    }
+  };
+
+  getConcreteTransactionData = async (req, res) => {
+    try {
+      let { hour, minute, options } = req.query;
+      let [day, month, year] = req.query.day.split("/");
+      day = parseInt(day);
+      month = parseInt(month);
+      year = parseInt(year);
+      hour = parseInt(hour);
+      minute = parseInt(minute);
+      const { dataType, value } = req.query;
+
+      const createMatchObject = (options) => {
+        if (options === "minute") {
+          // console.log("run");
+          return {
+            $match: {
+              "date.year": year,
+              "date.month": month,
+              "date.day": day,
+              "date.hour": hour,
+              "date.minute": minute,
+            },
+          };
+        } else if (options === "hour") {
+          return {
+            $match: {
+              "date.year": year,
+              "date.month": month,
+              "date.day": day,
+              "date.hour": hour,
+            },
+          };
+        } else if (options === "day") {
+          return {
+            $match: {
+              "date.year": year,
+              "date.month": month,
+              "date.day": day,
+            },
+          };
+        } else if (options === "all") {
+          return {};
+        }
+      };
+      let result = await db
+        .collection("user_point")
+        .aggregate([
+          {
+            $project: {
+              date: { $add: ["$createdAt", 7 * 60 * 60 * 1000] },
+              value: 1,
+              event: "$data.event",
+              data: `$data`,
+              dataType: `$data.${dataType}`,
+            },
+          },
+          {
+            $match: {
+              dataType: value,
             },
           },
           {
