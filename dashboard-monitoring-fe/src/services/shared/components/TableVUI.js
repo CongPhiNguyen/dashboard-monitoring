@@ -11,7 +11,6 @@ const columns = [
         dataIndex: 'using',
         sorter: {
             compare: (a, b) => a.using - b.using,
-            // multiple: 2,
         },
         render: (text) => <div className='flex justify-start items-center'>
             <p className='text-[#a0d911] font-bold m-0'>{text}</p>
@@ -23,7 +22,6 @@ const columns = [
         dataIndex: 'giving',
         sorter: {
             compare: (a, b) => a.giving - b.giving,
-            // multiple: 1,
         },
         render: (text) => <div className='flex justify-start items-center'>
             <p className='text-[#ff4d4f]  font-bold m-0'>{text}</p>
@@ -38,8 +36,19 @@ const onChange = (pagination, filters, sorter, extra) => {
 };
 
 const TableVUI = (props) => {
-
     const renderDate = (date) => {
+        if (props.type === "week") {
+            return date
+        } else if (props.type === "day") {
+            return props.day + " " + date + ":00"
+        } else if (props.type === "hour") {
+            return props.day + " " + props.hour + ":" + date
+        } else {
+            let a = new Date(date)
+            return a.getDate() + "/" + (a.getMonth() + 1) + "/" + a.getFullYear() + " " + a.getHours() + ":" + a.getMinutes() + ":" + a.getSeconds()
+        }
+        // if (props.type === "week") {
+        // let [day, month, year] = date.split("/")
         let a = new Date(date)
         return a.getDate() + "/" + (a.getMonth() + 1) + "/" + a.getFullYear() + " " + a.getHours() + ":" + a.getMinutes() + ":" + a.getSeconds()
     }
@@ -55,18 +64,19 @@ const TableVUI = (props) => {
                     giving: props.giving[key],
                 }
             }))
+        } else {
+            if (props.categories.length !== 0) {
+                setData(prev => {
+                    return [{
+                        key: props.categories.length,
+                        date: renderDate(props.categories[props.categories.length - 1]),
+                        using: props.using[props.using.length - 1],
+                        giving: props.giving[props.giving.length - 1],
+                    }, ...prev]
+                })
+            }
         }
-        if (props.categories.length !== 0) {
-            setData(prev => {
-                return [{
-                    key: props.categories.length,
-                    date: renderDate(props.categories[props.categories.length - 1]),
-                    using: props.using[props.using.length - 1],
-                    giving: props.giving[props.giving.length - 1],
-                }, ...prev]
-            })
-        }
-    }, [props.categories, props.using, props.giving])
+    }, [props.categories, props.using, props.giving, data.length])
     return (
         <Table columns={columns} dataSource={data} onChange={onChange} />
     )

@@ -1,6 +1,18 @@
 var mongoose = require("mongoose")
-
 const db = mongoose.connection
+const schedule = require("node-schedule")
+
+const job = schedule.scheduleJob("0 * * * * *", function () {
+  console.log("The answer to life, the universe, and everything!")
+
+  // let a = new Date();
+  // const data = {
+  //   using: randomIntFromInterval(500, 1000),
+  //   giving: randomIntFromInterval(501, 1000),
+  //   date: a.getTime() + i * 1000,
+  // };
+  // global._io.emit("getData", { ...data });
+})
 
 class vuiCoinsController {
   getAllDataVui = async (req, res) => {

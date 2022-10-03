@@ -10,12 +10,7 @@ const { Header } = Layout;
 const HeaderMain = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const navItem =
-    "px-3 inline-block mr-[1em] hover:opacity hover:text-[#f73965] font-[600] text-[16px] text-[white]";
 
-  const makeClass = (isActive) => {
-    return isActive ? `${navItem} bg-[#9e8725]` : `${navItem}`;
-  };
 
   const userLogin = useSelector((state) => state.authenSlice.isLogin);
 
