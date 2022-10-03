@@ -1,9 +1,7 @@
 var mongoose = require("mongoose");
 const db = mongoose.connection;
 const schedule = require('node-schedule');
-var rule = new schedule.RecurrenceRule();
 
-rule.minute = new schedule.Range(0, 59, 5);
 const job = schedule.scheduleJob('0 * * * * *', async () => {
   console.log('Update chart by minutes!');
   const currentTime = new Date(
