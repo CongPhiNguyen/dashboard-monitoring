@@ -1,17 +1,89 @@
 var mongoose = require("mongoose")
 const db = mongoose.connection
 const schedule = require("node-schedule")
+var rule = new schedule.RecurrenceRule()
 
-const job = schedule.scheduleJob("0 * * * * *", function () {
-  console.log("The answer to life, the universe, and everything!")
+rule.minute = new schedule.Range(0, 59, 5)
+const job = schedule.scheduleJob("0 * * * * *", async () => {
+  console.log("Update chart by minutes!")
+  const currentTime = new Date(new Date().getTime() - 7 * 60 * 60 * 1000)
+  let result = await db
+    .collection("user_point")
+    .aggregate([
+      {
+        $project: {
+          date: {
+            $dateToParts: { date: "$createdAt" }
+          },
+          value: 1,
+          event: "$data.event"
+        }
+      },
+      {
+        $match: {
+          "date.year": currentTime.getFullYear(),
+          "date.month": currentTime.getMonth() + 1,
+          "date.day": currentTime.getDate(),
+          "date.hour": currentTime.getHours(),
+          "date.minute": currentTime.getMinutes() - 1
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateFromParts: {
+              year: "$date.year",
+              month: "$date.month",
+              day: "$date.day",
+              hour: "$date.hour",
+              minute: "$date.minute"
+            }
+          },
+          value: {
+            $push: {
+              event: "$event",
+              value: "$value"
+            }
+          }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ])
+    .toArray()
+  const sumOfArray = (arr) => {
+    let resultSum = 0
+    for (const arrVal of arr) {
+      resultSum += arrVal
+    }
+    return resultSum
+  }
+
+  const vuiGiving = result.map((val) =>
+    sumOfArray(
+      val.value.map((value) => {
+        if (value.event === "ISSUE" || value.event == "REFUND")
+          return value.value
+        else return 0
+      })
+    )
+  )
+
+  const vuiSpending = result.map((val) =>
+    sumOfArray(
+      val.value.map((value) => {
+        if (value.event === "REDEEM") return value.value
+        else return 0
+      })
+    )
+  )
 
   // let a = new Date();
-  // const data = {
-  //   using: randomIntFromInterval(500, 1000),
-  //   giving: randomIntFromInterval(501, 1000),
-  //   date: a.getTime() + i * 1000,
-  // };
-  // global._io.emit("getData", { ...data });
+  const data = {
+    result: result,
+    vuiGiving: vuiGiving[0] || 0,
+    vuiSpending: vuiSpending[0] || 0
+  }
+  global._io.emit("getData", { ...data })
 })
 
 class vuiCoinsController {
