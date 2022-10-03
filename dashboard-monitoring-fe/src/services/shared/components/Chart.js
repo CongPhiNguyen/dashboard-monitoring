@@ -18,16 +18,31 @@ export default function Chart() {
             socketRef.current.emit('authenticate', { token: getAccessToken() });
         });
         socketRef.current.on('getData', (data) => {
-            console.log("S")
-            setSeries1(prev => {
-                return [...prev.slice(0), data.using];
-            })
-            setSeries2(prev => {
-                return [...prev.slice(0), data.giving];
-            })
-            setCategories(prev => {
-                return [...prev.slice(0), data.date]
-            })
+            let now = new Date().getTime() - 1000 * 60
+            let now1 = new Date(now)
+            let last = new Date(categories[categories.length - 1])
+            if (now1.getSeconds() === last.getSeconds() && now1.getMinutes() === last.getMinutes() && now1.getHours() === last.getHours()) {
+                setSeries1(prev => {
+                    prev[prev.length - 1] = data.vuiSpending
+                    return [...prev]
+                })
+                setSeries2(prev => {
+                    prev[prev.length - 1] = data.vuiGiving
+                    return [...prev]
+                })
+            } else {
+                console.log(false);
+                console.log(data);
+                setSeries1(prev => {
+                    return [...prev.slice(0), data.vuiSpending];
+                })
+                setSeries2(prev => {
+                    return [...prev.slice(0), data.vuiGiving];
+                })
+                setCategories(prev => {
+                    return [...prev.slice(0), now]
+                })
+            }
         })
 
         // 

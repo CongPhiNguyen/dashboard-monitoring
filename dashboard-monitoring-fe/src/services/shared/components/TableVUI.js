@@ -37,9 +37,18 @@ const onChange = (pagination, filters, sorter, extra) => {
 
 const TableVUI = (props) => {
     const renderDate = (date) => {
+        if (props.type === "week") {
+            return date
+        } else if (props.type === "day") {
+            return props.day + " " + date + ":00"
+        } else if (props.type === "hour") {
+            return props.day + " " + props.hour + ":" + date
+        } else {
+            let a = new Date(date)
+            return a.getDate() + "/" + (a.getMonth() + 1) + "/" + a.getFullYear() + " " + a.getHours() + ":" + a.getMinutes() + ":" + a.getSeconds()
+        }
         // if (props.type === "week") {
         // let [day, month, year] = date.split("/")
-        console.log(date.split("/"))
         let a = new Date(date)
         return a.getDate() + "/" + (a.getMonth() + 1) + "/" + a.getFullYear() + " " + a.getHours() + ":" + a.getMinutes() + ":" + a.getSeconds()
     }
@@ -55,16 +64,17 @@ const TableVUI = (props) => {
                     giving: props.giving[key],
                 }
             }))
-        }
-        if (props.categories.length !== 0) {
-            setData(prev => {
-                return [{
-                    key: props.categories.length,
-                    date: renderDate(props.categories[props.categories.length - 1]),
-                    using: props.using[props.using.length - 1],
-                    giving: props.giving[props.giving.length - 1],
-                }, ...prev]
-            })
+        } else {
+            if (props.categories.length !== 0) {
+                setData(prev => {
+                    return [{
+                        key: props.categories.length,
+                        date: renderDate(props.categories[props.categories.length - 1]),
+                        using: props.using[props.using.length - 1],
+                        giving: props.giving[props.giving.length - 1],
+                    }, ...prev]
+                })
+            }
         }
     }, [props.categories, props.using, props.giving, data.length])
     return (

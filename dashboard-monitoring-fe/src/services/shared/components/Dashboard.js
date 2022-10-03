@@ -14,7 +14,7 @@ export default function Dashboard() {
     const [option1, setOption1] = useState("week")
     const [option2, setOption2] = useState("all")
     const [dayOfWeek, setDayOfWeek] = useState([])
-
+    const [type, setType] = useState("week")
     useEffect(() => {
         let currentDay = new Date()
         let days = []
@@ -30,6 +30,7 @@ export default function Dashboard() {
     const handleChange = (value) => {
         setOption1(value)
     };
+
     const handleChange1 = (value) => {
         setOption2(value)
     };
@@ -233,9 +234,7 @@ export default function Dashboard() {
     }
 
     const renderDay = async () => {
-        console.log(option1)
         const response = await get(URL.URL_GET_DATA_DAY + `?day=${option1}`)
-        console.log(response.data)
         let arr = new Array(24).fill(0)
         setSeries1(response.data.vuiSpending)
         setSeries2(response.data.vuiGiving)
@@ -259,9 +258,12 @@ export default function Dashboard() {
     useEffect(() => {
         if (option1 === "week") {
             renderWeek()
+            setType("week")
         } else if (option1 !== "week" && option2 === "all") {
             renderDay()
+            setType("day")
         } else {
+            setType("hour")
             renderHours()
         }
     }, [option1, option2])
@@ -306,7 +308,7 @@ export default function Dashboard() {
             </div>
             <Row className='mt-3' gutter={[16, 16]}>
                 <Col xl={12} md={24}>
-                    <TableVUI using={series1} typeCate={"week"} giving={series2} categories={categories}></TableVUI>
+                    <TableVUI using={series1} type={type} day={option1} hour={option2} giving={series2} categories={categories}></TableVUI>
                 </Col>
                 <Col xl={12} md={24}>
                     <BalanceVUI using={series1} giving={series2} ></BalanceVUI>
