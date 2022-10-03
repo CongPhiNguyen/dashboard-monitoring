@@ -1,25 +1,23 @@
-var mongoose = require("mongoose");
-const db = mongoose.connection;
-const schedule = require('node-schedule');
-var rule = new schedule.RecurrenceRule();
+var mongoose = require("mongoose")
+const db = mongoose.connection
+const schedule = require("node-schedule")
+var rule = new schedule.RecurrenceRule()
 
-rule.minute = new schedule.Range(0, 59, 5);
-const job = schedule.scheduleJob('0 * * * * *', async () => {
-  console.log('Update chart by minutes!');
-  const currentTime = new Date(
-    new Date().getTime() - 7 * 60 * 60 * 1000
-  );
+rule.minute = new schedule.Range(0, 59, 5)
+const job = schedule.scheduleJob("0 * * * * *", async () => {
+  console.log("Update chart by minutes!")
+  const currentTime = new Date(new Date().getTime() - 7 * 60 * 60 * 1000)
   let result = await db
     .collection("user_point")
     .aggregate([
       {
         $project: {
           date: {
-            $dateToParts: { date: "$createdAt" },
+            $dateToParts: { date: "$createdAt" }
           },
           value: 1,
-          event: "$data.event",
-        },
+          event: "$data.event"
+        }
       },
       {
         $match: {
@@ -27,8 +25,8 @@ const job = schedule.scheduleJob('0 * * * * *', async () => {
           "date.month": currentTime.getMonth() + 1,
           "date.day": currentTime.getDate(),
           "date.hour": currentTime.getHours(),
-          "date.minute": currentTime.getMinutes() - 1,
-        },
+          "date.minute": currentTime.getMinutes() - 1
+        }
       },
       {
         $group: {
@@ -38,55 +36,55 @@ const job = schedule.scheduleJob('0 * * * * *', async () => {
               month: "$date.month",
               day: "$date.day",
               hour: "$date.hour",
-              minute: "$date.minute",
-            },
+              minute: "$date.minute"
+            }
           },
           value: {
             $push: {
               event: "$event",
-              value: "$value",
-            },
-          },
-        },
+              value: "$value"
+            }
+          }
+        }
       },
-      { $sort: { _id: 1 } },
+      { $sort: { _id: 1 } }
     ])
-    .toArray();
+    .toArray()
   const sumOfArray = (arr) => {
-    let resultSum = 0;
+    let resultSum = 0
     for (const arrVal of arr) {
-      resultSum += arrVal;
+      resultSum += arrVal
     }
-    return resultSum;
-  };
+    return resultSum
+  }
 
   const vuiGiving = result.map((val) =>
     sumOfArray(
       val.value.map((value) => {
         if (value.event === "ISSUE" || value.event == "REFUND")
-          return value.value;
-        else return 0;
+          return value.value
+        else return 0
       })
     )
-  );
+  )
 
   const vuiSpending = result.map((val) =>
     sumOfArray(
       val.value.map((value) => {
-        if (value.event === "REDEEM") return value.value;
-        else return 0;
+        if (value.event === "REDEEM") return value.value
+        else return 0
       })
     )
-  );
+  )
 
   // let a = new Date();
   const data = {
     result: result,
     vuiGiving: vuiGiving[0] || 0,
-    vuiSpending: vuiSpending[0] || 0,
-  };
-  global._io.emit("getData", { ...data });
-});
+    vuiSpending: vuiSpending[0] || 0
+  }
+  global._io.emit("getData", { ...data })
+})
 
 class vuiCoinsController {
   getAllDataVui = async (req, res) => {
@@ -97,11 +95,11 @@ class vuiCoinsController {
           {
             $project: {
               date: {
-                $dateToParts: { date: "$createdAt" },
+                $dateToParts: { date: "$createdAt" }
               },
               value: 1,
-              event: "$data.event",
-            },
+              event: "$data.event"
+            }
           },
           {
             $group: {
@@ -111,12 +109,12 @@ class vuiCoinsController {
                   month: "$date.month",
                   day: "$date.day",
                   hour: "$date.hour",
-                  minute: "$date.second",
+                  minute: "$date.second"
                 },
-                event: "$event",
+                event: "$event"
               },
-              sum: { $sum: "$value" },
-            },
+              sum: { $sum: "$value" }
+            }
           },
 
           {
@@ -128,38 +126,38 @@ class vuiCoinsController {
                   month: "$_id.timeTempt.month",
                   day: "$_id.timeTempt.day",
                   hour: "$_id.timeTempt.hour",
-                  minute: "$_id.timeTempt.minute",
-                },
+                  minute: "$_id.timeTempt.minute"
+                }
               },
               value: "$sum",
-              event: "$_id.event",
-            },
+              event: "$_id.event"
+            }
           },
           {
             $group: {
               _id: {
-                time: "$time",
+                time: "$time"
               },
               value: {
                 $push: {
                   event: "$event",
-                  points: "$value",
-                },
-              },
-            },
+                  points: "$value"
+                }
+              }
+            }
           },
           {
             $project: {
               _id: 0,
               time: "$_id.time",
-              value: "$value",
-            },
+              value: "$value"
+            }
           },
           {
-            $sort: { time: 1 },
-          },
+            $sort: { time: 1 }
+          }
         ])
-        .toArray();
+        .toArray()
       let arrCate = []
       let Giving = []
       let Using = []
@@ -179,9 +177,11 @@ class vuiCoinsController {
         }
       }
 
-      res.status(200).send({ success: true, data: result, arrCate, Giving, Using });
+      res
+        .status(200)
+        .send({ success: true, data: result, arrCate, Giving, Using })
     } catch (err) {
-      res.status(200).send({ success: false, err: err.message });
+      res.status(200).send({ success: false, err: err.message })
     }
   }
 
@@ -194,17 +194,17 @@ class vuiCoinsController {
             $project: {
               date: { $add: ["$createdAt", 7 * 60 * 60 * 1000] },
               value: 1,
-              event: "$data.event",
-            },
+              event: "$data.event"
+            }
           },
           {
             $project: {
               date: {
-                $dateToParts: { date: "$date" },
+                $dateToParts: { date: "$date" }
               },
               value: 1,
-              event: "$event",
-            },
+              event: "$event"
+            }
           },
           {
             $group: {
@@ -212,10 +212,10 @@ class vuiCoinsController {
                 year: "$date.year",
                 month: "$date.month",
                 day: "$date.day",
-                event: "$event",
+                event: "$event"
               },
-              value: { $sum: "$value" },
-            },
+              value: { $sum: "$value" }
+            }
           },
           {
             $group: {
@@ -225,25 +225,25 @@ class vuiCoinsController {
                   month: "$_id.month",
                   day: "$_id.day",
                   hour: 0,
-                  minute: 0,
-                },
+                  minute: 0
+                }
               },
               value: {
                 $push: {
                   event: "$_id.event",
-                  value: "$value",
-                },
-              },
-            },
+                  value: "$value"
+                }
+              }
+            }
           },
-          { $sort: { _id: 1 } },
+          { $sort: { _id: 1 } }
         ])
-        .toArray();
+        .toArray()
       // Xử lý thêm default
-      let currentDay = new Date();
+      let currentDay = new Date()
       currentDay.setTime(
         currentDay.getTime() - (8 - result.length) * 24 * 60 * 60 * 1000
-      );
+      )
 
       for (let i = 6 - result.length; i >= 0; i--) {
         result.unshift({
@@ -251,46 +251,46 @@ class vuiCoinsController {
           value: [
             {
               event: "REDEEM",
-              value: 0,
+              value: 0
             },
             {
               event: "ISSUE",
-              value: 0,
-            },
-          ],
-        });
+              value: 0
+            }
+          ]
+        })
       }
       const sumOfArray = (arr) => {
-        let resultSum = 0;
+        let resultSum = 0
         for (const arrVal of arr) {
-          resultSum += arrVal;
+          resultSum += arrVal
         }
-        return resultSum;
-      };
-      const dateString = result.map((val) => val._id);
+        return resultSum
+      }
+      const dateString = result.map((val) => val._id)
       const vuiGiving = result.map((val) =>
         sumOfArray(
           val.value.map((value) => {
             if (value.event === "ISSUE" || value.event == "REFUND")
-              return value.value;
-            else return 0;
+              return value.value
+            else return 0
           })
         )
-      );
+      )
       const vuiSpending = result.map((val) =>
         sumOfArray(
           val.value.map((value) => {
-            if (value.event === "REDEEM") return value.value;
-            else return 0;
+            if (value.event === "REDEEM") return value.value
+            else return 0
           })
         )
-      );
+      )
       res.status(200).send({
         success: true,
         dateString: dateString,
         vuiGiving: vuiGiving,
-        vuiSpending: vuiSpending,
-      });
+        vuiSpending: vuiSpending
+      })
     } catch (err) {
       res.status(400).json({
         err: err.message
@@ -300,10 +300,10 @@ class vuiCoinsController {
 
   getDataDay = async (req, res) => {
     try {
-      let [day, month, year] = req.query.day.split("/");
-      day = parseInt(day);
-      month = parseInt(month);
-      year = parseInt(year);
+      let [day, month, year] = req.query.day.split("/")
+      day = parseInt(day)
+      month = parseInt(month)
+      year = parseInt(year)
 
       // const dateString = new Date(req.query.date)
       let result = await db
@@ -313,17 +313,17 @@ class vuiCoinsController {
             $project: {
               date: { $add: ["$createdAt", 7 * 60 * 60 * 1000] },
               value: 1,
-              event: "$data.event",
-            },
+              event: "$data.event"
+            }
           },
           {
             $project: {
               date: {
-                $dateToParts: { date: "$date" },
+                $dateToParts: { date: "$date" }
               },
               value: 1,
-              event: "$event",
-            },
+              event: "$event"
+            }
           },
           {
             $group: {
@@ -332,17 +332,17 @@ class vuiCoinsController {
                 month: "$date.month",
                 day: "$date.day",
                 hour: "$date.hour",
-                event: "$event",
+                event: "$event"
               },
-              value: { $sum: "$value" },
-            },
+              value: { $sum: "$value" }
+            }
           },
           {
             $match: {
               "_id.year": year,
               "_id.month": month,
-              "_id.day": day,
-            },
+              "_id.day": day
+            }
           },
           {
             $group: {
@@ -351,66 +351,66 @@ class vuiCoinsController {
                   year: "$_id.year",
                   month: "$_id.month",
                   day: "$_id.day",
-                  hour: "$_id.hour",
-                },
+                  hour: "$_id.hour"
+                }
               },
               value: {
                 $push: {
                   event: "$_id.event",
-                  value: "$value",
-                },
-              },
-            },
+                  value: "$value"
+                }
+              }
+            }
           },
-          { $sort: { _id: 1 } },
+          { $sort: { _id: 1 } }
         ])
-        .toArray();
+        .toArray()
 
       const hourArrayTempt = result.map((val) => {
         return new Date(
           new Date(val._id).getTime() - 7 * 60 * 60 * 1000
-        ).getHours();
-      });
+        ).getHours()
+      })
 
       const sumOfArray = (arr) => {
-        let resultSum = 0;
+        let resultSum = 0
         for (const arrVal of arr) {
-          resultSum += arrVal;
+          resultSum += arrVal
         }
-        return resultSum;
-      };
+        return resultSum
+      }
 
       const vuiGivingTemp = result.map((val) =>
         sumOfArray(
           val.value.map((value) => {
             if (value.event === "ISSUE" || value.event == "REFUND")
-              return value.value;
-            else return 0;
+              return value.value
+            else return 0
           })
         )
-      );
+      )
 
       const vuiSpendingTemp = result.map((val) =>
         sumOfArray(
           val.value.map((value) => {
-            if (value.event === "REDEEM") return value.value;
-            else return 0;
+            if (value.event === "REDEEM") return value.value
+            else return 0
           })
         )
-      );
+      )
 
-      let currentIndex = 0;
+      let currentIndex = 0
 
-      let vuiSpending = [];
-      let vuiGiving = [];
+      let vuiSpending = []
+      let vuiGiving = []
       for (let i = 0; i < 24; i++) {
         if (hourArrayTempt.includes(i)) {
-          vuiGiving.push(vuiGivingTemp[currentIndex]);
-          vuiSpending.push(vuiSpendingTemp[currentIndex]);
-          currentIndex++;
+          vuiGiving.push(vuiGivingTemp[currentIndex])
+          vuiSpending.push(vuiSpendingTemp[currentIndex])
+          currentIndex++
         } else {
-          vuiGiving.push(0);
-          vuiSpending.push(0);
+          vuiGiving.push(0)
+          vuiSpending.push(0)
         }
       }
       res.status(200).send({
@@ -418,8 +418,8 @@ class vuiCoinsController {
         result: result,
         hourArray: [...Array(24).keys()],
         vuiGiving: vuiGiving,
-        vuiSpending: vuiSpending,
-      });
+        vuiSpending: vuiSpending
+      })
     } catch (err) {
       res.status(400).json({
         err: err.message
@@ -429,12 +429,12 @@ class vuiCoinsController {
 
   getDataHours = async (req, res) => {
     try {
-      console.log(req.query.day);
-      let [day, month, year] = req.query.day.split("/");
-      let hour = parseInt(req.query.hour);
-      day = parseInt(day);
-      month = parseInt(month);
-      year = parseInt(year);
+      console.log(req.query.day)
+      let [day, month, year] = req.query.day.split("/")
+      let hour = parseInt(req.query.hour)
+      day = parseInt(day)
+      month = parseInt(month)
+      year = parseInt(year)
 
       // const dateString = new Date(req.query.date)
       let result = await db
@@ -444,17 +444,17 @@ class vuiCoinsController {
             $project: {
               date: { $add: ["$createdAt", 7 * 60 * 60 * 1000] },
               value: 1,
-              event: "$data.event",
-            },
+              event: "$data.event"
+            }
           },
           {
             $project: {
               date: {
-                $dateToParts: { date: "$date" },
+                $dateToParts: { date: "$date" }
               },
               value: 1,
-              event: "$event",
-            },
+              event: "$event"
+            }
           },
           {
             $group: {
@@ -464,18 +464,18 @@ class vuiCoinsController {
                 day: "$date.day",
                 hour: "$date.hour",
                 minute: "$date.minute",
-                event: "$event",
+                event: "$event"
               },
-              value: { $sum: "$value" },
-            },
+              value: { $sum: "$value" }
+            }
           },
           {
             $match: {
               "_id.year": year,
               "_id.month": month,
               "_id.day": day,
-              "_id.hour": hour,
-            },
+              "_id.hour": hour
+            }
           },
           {
             $group: {
@@ -485,74 +485,74 @@ class vuiCoinsController {
                   month: "$_id.month",
                   day: "$_id.day",
                   hour: "$_id.hour",
-                  minute: "$_id.minute",
-                },
+                  minute: "$_id.minute"
+                }
               },
               value: {
                 $push: {
                   event: "$_id.event",
-                  value: "$value",
-                },
-              },
-            },
+                  value: "$value"
+                }
+              }
+            }
           },
-          { $sort: { _id: 1 } },
+          { $sort: { _id: 1 } }
         ])
-        .toArray();
+        .toArray()
 
       const minuteArrayTempt = result.map((val) => {
         return new Date(
           new Date(val._id).getTime() - 7 * 60 * 60 * 1000
-        ).getMinutes();
-      });
+        ).getMinutes()
+      })
 
       const sumOfArray = (arr) => {
-        let resultSum = 0;
+        let resultSum = 0
         for (const arrVal of arr) {
-          resultSum += arrVal;
+          resultSum += arrVal
         }
-        return resultSum;
-      };
+        return resultSum
+      }
 
       const vuiGivingTemp = result.map((val) =>
         sumOfArray(
           val.value.map((value) => {
             if (value.event === "ISSUE" || value.event == "REFUND")
-              return value.value;
-            else return 0;
+              return value.value
+            else return 0
           })
         )
-      );
+      )
 
       const vuiSpendingTemp = result.map((val) =>
         sumOfArray(
           val.value.map((value) => {
-            if (value.event === "REDEEM") return value.value;
-            else return 0;
+            if (value.event === "REDEEM") return value.value
+            else return 0
           })
         )
-      );
+      )
 
-      let currentIndex = 0;
-      let vuiSpending = [];
-      let vuiGiving = [];
+      let currentIndex = 0
+      let vuiSpending = []
+      let vuiGiving = []
 
       for (let i = 0; i < 60; i++) {
         if (minuteArrayTempt.includes(i)) {
-          vuiGiving.push(vuiGivingTemp[currentIndex]);
-          vuiSpending.push(vuiSpendingTemp[currentIndex]);
-          currentIndex++;
+          vuiGiving.push(vuiGivingTemp[currentIndex])
+          vuiSpending.push(vuiSpendingTemp[currentIndex])
+          currentIndex++
         } else {
-          vuiGiving.push(0);
-          vuiSpending.push(0);
+          vuiGiving.push(0)
+          vuiSpending.push(0)
         }
       }
 
       res.status(200).send({
         success: true,
         vuiGiving: vuiGiving,
-        vuiSpending: vuiSpending,
-      });
+        vuiSpending: vuiSpending
+      })
     } catch (err) {
       res.status(400).json({
         err: err.message
@@ -561,4 +561,4 @@ class vuiCoinsController {
   }
 }
 
-module.exports = new vuiCoinsController();
+module.exports = new vuiCoinsController()
