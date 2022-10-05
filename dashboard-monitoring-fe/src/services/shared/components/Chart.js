@@ -20,6 +20,7 @@ export default function Chart() {
     socketRef.current.on("getData", (data) => {
       let now = new Date().getTime() - 1000 * 60
       let now1 = new Date(now)
+      console.log("categories", categories)
       let last = new Date(categories[categories.length - 1])
       console.log("now", now)
       console.log("last", last)
