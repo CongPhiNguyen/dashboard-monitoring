@@ -30,11 +30,9 @@ app.use(express.static("public"))
 connectDB()
 
 route(app)
-
 http.listen(PORT, () => {
   console.log("Server is running at port " + PORT)
 })
-
 // if (cluster.isMaster) {
 //   for (var i = 0; i < cpuCount; i++) {
 //     cluster.fork()
@@ -43,7 +41,5 @@ http.listen(PORT, () => {
 //     console.log("worker " + worker.process.pid + " died")
 //   })
 // } else {
-//   http.listen(PORT, () => {
-//     console.log("Server is running at port " + PORT)
-//   })
+
 // }
