@@ -1894,8 +1894,6 @@ class vuiCoinsController {
         }
       }
 
-      console.log(matchObject)
-
       const createMatchObject = (options) => {
         if (options === "minute") {
           // console.log("run");

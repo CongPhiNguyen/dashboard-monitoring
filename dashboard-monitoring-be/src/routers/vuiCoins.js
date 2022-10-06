@@ -19,9 +19,7 @@ router.get("/get-data-by-minute", vuiCoinsController.getDataByMinute)
 router.get("/get-concrete-value", vuiCoinsController.getConcreteValue)
 
 router.get("/get-concrete-data", vuiCoinsController.getConcreteData)
-
 router.get("/get-concrete-data-2", vuiCoinsController.getConcreteData2)
-
 router.get("/get-transaction", vuiCoinsController.getTransactionDataInMinute)
 
 router.get(
